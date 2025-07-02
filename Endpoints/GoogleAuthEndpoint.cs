@@ -46,7 +46,7 @@ internal static class GoogleAuthEndpoint
 
                         var displayName = firebaseToken.Claims["name"].ToString()!;
                         var names = displayName.Split(' ');
-                        var result = await userManager.Signup(userFactory,
+                        var result = await userManager.Register(userFactory,
                                 names.First(), names.Last(), email!, isSocialAuth: true);
 
                         return Results.Ok(result);

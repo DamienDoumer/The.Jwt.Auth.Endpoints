@@ -7,7 +7,11 @@ public static class AuthEndpointExtentions
     public static IEndpointRouteBuilder MapAuthenticationEndpoints<TUser>(this IEndpointRouteBuilder builder) 
         where TUser : IdentityUser
     {
-        builder.MapGoogleAuthenticationEndpoint<TUser>();
+        builder
+            .MapGoogleAuthenticationEndpoint<TUser>()
+            .MapLoginEndpoint<TUser>()
+            .MapRegisterEndpoint<TUser>()
+            .MapRefreshTokenEndpoint<TUser>();
 
         return builder;
     }

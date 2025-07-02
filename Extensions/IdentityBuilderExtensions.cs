@@ -8,7 +8,7 @@ namespace Jwt.IdentityEndpoints.Extensions;
 
 public static class IdentityBuilderExtensions
 {
-    public static IEndpointRouteBuilder MapJwtIdentityEndpoints<TUser>(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder MapJwtAuthEndpoints<TUser>(this IEndpointRouteBuilder builder)
         where TUser : IdentityUser
     {
         ArgumentNullException.ThrowIfNull(builder);

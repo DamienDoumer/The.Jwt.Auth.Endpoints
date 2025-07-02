@@ -3,8 +3,8 @@
 internal class AuthConstants
 {
     public const string AuthEnpointGroup = "auth";
-    public const string SignupEndpoint = $"{AuthEnpointGroup}/signup";
-    public const string SigninEndpoint = $"{AuthEnpointGroup}/signin";
+    public const string RegisterEndpoint = $"{AuthEnpointGroup}/register";
+    public const string LoginEndpoint = $"{AuthEnpointGroup}/login";
     public const string GoogleEndpoint = $"{AuthEnpointGroup}/social/google";
     public const string RefreshEndpoint = $"{AuthEnpointGroup}/refresh";
     public const string ResendConfirmationEmailEndpoint = $"{AuthEnpointGroup}/resendConfirmationEmail";

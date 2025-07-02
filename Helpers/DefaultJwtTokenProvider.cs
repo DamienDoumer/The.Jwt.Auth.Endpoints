@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace Jwt.Auth.Endpoints.Helpers;
 
-internal class DefaultJwtTokenProvider : IJwtTokenProvider
+public class DefaultJwtTokenProvider : IJwtTokenProvider
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly JwtAuthEndpointsConfigOptions _jwtOptions;

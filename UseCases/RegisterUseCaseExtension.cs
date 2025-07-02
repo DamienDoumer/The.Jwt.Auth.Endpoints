@@ -3,16 +3,15 @@ using Jwt.Auth.Endpoints.Helpers.Exceptions;
 
 namespace Jwt.Auth.Endpoints.UseCases;
 
-internal static class SignupUseCaseExtension
+internal static class RegisterUseCaseExtension
 {
-    public static async Task<TUser> Signup<TUser>(
+    public static async Task<TUser> Register<TUser>(
         this UserManager<TUser> userManager,
         IIdentityUserFactory<TUser> identityUserFactory,
         string firstName, string secondName, string email,
         string? password = null, string? picture = null, 
         bool isSocialAuth = false) where TUser : IdentityUser
     {
-        
         var newUser = identityUserFactory.CreateUser(firstName, secondName, email, password);
         IdentityResult result = null!;
 
