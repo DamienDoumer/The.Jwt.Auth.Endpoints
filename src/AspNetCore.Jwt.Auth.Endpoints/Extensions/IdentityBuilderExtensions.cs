@@ -1,5 +1,7 @@
 ﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -34,6 +36,11 @@ public static class IdentityBuilderExtensions
 
         services.PostConfigure<JwtAuthEndpointsConfigOptions>(options =>
         {
+            if (options.GoogleFirebaseAuthOptions != null)
+            {
+                FirebaseApp.Create(options.GoogleFirebaseAuthOptions);
+            }
+            
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = opt.DefaultAuthenticateScheme;
