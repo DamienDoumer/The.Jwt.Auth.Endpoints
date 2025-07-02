@@ -10,7 +10,7 @@ internal static class SignupUseCaseExtension
         IIdentityUserFactory<TUser> identityUserFactory,
         string firstName, string secondName, string email,
         string? password = null, string? picture = null, 
-        bool isSocialAuth = false) where TUser : IdentityUser, new()
+        bool isSocialAuth = false) where TUser : IdentityUser
     {
         
         var newUser = identityUserFactory.CreateUser(firstName, secondName, email, password);

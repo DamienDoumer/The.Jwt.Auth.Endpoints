@@ -12,7 +12,7 @@ internal static class GoogleAuthEndpoint
     public const string Name = "GoogleSocialAuthentication";
 
     public static IEndpointRouteBuilder MapGoogleAuthenticationEndpoint<TUser>(this IEndpointRouteBuilder app)
-        where TUser : IdentityUser, new()
+        where TUser : IdentityUser
     {
         app.MapPost(AuthConstants.GoogleEndpoint, 
                 async ([FromBody] GoogleAuthRequestModel googleAuthRequest, [FromServices] IServiceProvider serviceProvider) =>

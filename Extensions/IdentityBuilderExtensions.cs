@@ -1,4 +1,5 @@
 ﻿using Jwt.Auth.Endpoints;
+using Jwt.Auth.Endpoints.Extensions;
 using Jwt.Auth.Endpoints.Helpers;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,17 @@ namespace Jwt.IdentityEndpoints.Extensions;
 
 public static class IdentityBuilderExtensions
 {
+    public static IEndpointRouteBuilder MapJwtIdentityEndpoints<TUser>(this IEndpointRouteBuilder builder)
+        where TUser : IdentityUser
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        RouteGroupBuilder group = builder.MapGroup("");
+        group.MapAuthenticationEndpoints<TUser>();
+
+        return builder;
+    }
+
     public static IServiceCollection AddJwtAuthEndpoints<TUser>(this IServiceCollection services,
         Action<JwtAuthEndpointsConfigOptions> config) where TUser : IdentityUser, new()
     {
