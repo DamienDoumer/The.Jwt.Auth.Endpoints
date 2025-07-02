@@ -1,8 +1,10 @@
-﻿using Jwt.Auth.Endpoints.Helpers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Jwt.Auth.Endpoints;
+using Jwt.Auth.Endpoints.Helpers;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Jwt.IdentityEndpoints.Extensions;
+
 public static class IdentityBuilderExtensions
 {
     public static IServiceCollection AddJwtAuthEndpoints<TUser>(this IServiceCollection services,
@@ -11,7 +13,9 @@ public static class IdentityBuilderExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(config);
 
+        services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
         services.TryAddSingleton<IIdentityUserFactory<IdentityUser>, DefaultUserFactory>();
+        services.TryAddSingleton<IJwtTokenProvider, DefaultJwtTokenProvider>();
         var builder = services.AddOptions<JwtAuthEndpointsConfigOptions>();
         var opts = new JwtAuthEndpointsConfigOptions();
 
@@ -19,33 +23,6 @@ public static class IdentityBuilderExtensions
 
         services.PostConfigure<JwtAuthEndpointsConfigOptions>(options =>
         {
-            if (options.JwtSettings == null ||
-                (
-                    string.IsNullOrWhiteSpace(options.JwtSettings.Audience) ||
-                    string.IsNullOrWhiteSpace(options.JwtSettings.Issuer) ||
-                    string.IsNullOrWhiteSpace(options.JwtSettings.Secret) ||
-                    options.JwtSettings.RefreshTokenLifeSpanInDays == 0 ||
-                    options.JwtSettings.TokenLifeSpanInHours == 0
-                ))
-            {
-                throw new InvalidOperationException("Please configure properly your \"JwtSettings\" " +
-                        "Make sure every property has a value other than the default value.");
-            }
-
-            if (!(options.UserFactory != null &&
-            (
-                options.AuthenticationScheme.DefaultAuthenticateScheme == JwtBearerDefaults.AuthenticationScheme &&
-                options.AuthenticationScheme.DefaultChallengeScheme == JwtBearerDefaults.AuthenticationScheme &&
-                options.AuthenticationScheme.DefaultScheme == JwtBearerDefaults.AuthenticationScheme
-            ) &&
-            options.JwtAuthSchemeOptions != null))
-            {
-                throw new InvalidOperationException("Please check your JwtAuthEndpointsConfigOptions's configurations and make sure that " +
-                   "these conditions are met: UserFactory should not be null, " +
-                   "AuthenticationScheme's DefaultAuthenticateScheme, DefaultChallengeScheme, DefaultScheme " +
-                   "should not be modified, and that your JwtOptions should be set.");
-            }
-
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = opt.DefaultAuthenticateScheme;
