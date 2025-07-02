@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Jwt.Auth.Endpoints.TestAPI", "src\AspNetCore.Jwt.Auth.Endpoints.TestAPI\AspNetCore.Jwt.Auth.Endpoints.TestAPI.csproj", "{90525460-0063-9FB8-2094-D5437B926BA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Jwt.Auth.Endpoints", "src\AspNetCore.Jwt.Auth.Endpoints\AspNetCore.Jwt.Auth.Endpoints.csproj", "{46EEE181-D099-69C0-A7FC-407FA6386AA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90525460-0063-9FB8-2094-D5437B926BA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90525460-0063-9FB8-2094-D5437B926BA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90525460-0063-9FB8-2094-D5437B926BA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90525460-0063-9FB8-2094-D5437B926BA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46EEE181-D099-69C0-A7FC-407FA6386AA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46EEE181-D099-69C0-A7FC-407FA6386AA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46EEE181-D099-69C0-A7FC-407FA6386AA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46EEE181-D099-69C0-A7FC-407FA6386AA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C27C310-0746-44E0-B7C6-6525509B0C1C}
+	EndGlobalSection
+EndGlobal

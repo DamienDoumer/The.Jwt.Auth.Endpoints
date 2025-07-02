@@ -1,0 +1,6 @@
+@AspNetCore.Jwt.Auth.Endpoints.TestAPI_HostAddress = http://localhost:5204
+
+GET {{AspNetCore.Jwt.Auth.Endpoints.TestAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
