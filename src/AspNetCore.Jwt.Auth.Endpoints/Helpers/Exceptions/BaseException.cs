@@ -1,4 +1,4 @@
-namespace Jwt.Auth.Endpoints.Helpers.Exceptions;
+namespace AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
 
 public class BaseException : Exception
 {

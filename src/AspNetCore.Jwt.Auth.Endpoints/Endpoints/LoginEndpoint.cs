@@ -1,10 +1,12 @@
-﻿using Jwt.Auth.Endpoints.Endpoints.Responses;
-using Jwt.Auth.Endpoints.Extensions;
-using Jwt.Auth.Endpoints.Helpers;
-using Jwt.Auth.Endpoints.Helpers.Exceptions;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Requests;
+using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Responses;
+using AspNetCore.Jwt.Auth.Endpoints.Extensions;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
+using AspNetCore.Jwt.Auth.Endpoints.Settings;
 using Microsoft.Extensions.Options;
 
-namespace Jwt.Auth.Endpoints.Endpoints;
+namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints;
 
 static internal class LoginEndpoint
 {

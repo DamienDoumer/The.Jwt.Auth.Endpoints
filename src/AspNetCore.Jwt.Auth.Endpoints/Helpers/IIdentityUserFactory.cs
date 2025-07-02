@@ -1,4 +1,4 @@
-﻿namespace Jwt.Auth.Endpoints.Helpers;
+﻿namespace AspNetCore.Jwt.Auth.Endpoints.Helpers;
 
 public interface IIdentityUserFactory<TUser> where TUser : IdentityUser
 {

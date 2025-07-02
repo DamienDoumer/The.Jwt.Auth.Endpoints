@@ -1,7 +1,7 @@
-﻿using Jwt.Auth.Endpoints.Helpers;
-using Jwt.Auth.Endpoints.Helpers.Exceptions;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
 
-namespace Jwt.Auth.Endpoints.UseCases;
+namespace AspNetCore.Jwt.Auth.Endpoints.UseCases;
 
 internal static class RegisterUseCaseExtension
 {

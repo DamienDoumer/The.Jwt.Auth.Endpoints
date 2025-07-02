@@ -1,4 +1,4 @@
-﻿namespace Jwt.Auth.Endpoints.Endpoints.Responses;
+﻿namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints.Responses;
 public class AuthResponseModel
 {
     public string Token { get; set; } = string.Empty;

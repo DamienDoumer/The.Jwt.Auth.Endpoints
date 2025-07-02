@@ -1,12 +1,13 @@
-﻿using Jwt.Auth.Endpoints.Endpoints.Responses;
-using Jwt.Auth.Endpoints.Extensions;
-using Jwt.Auth.Endpoints.Helpers;
-using Jwt.Auth.Endpoints.Helpers.Exceptions;
-using Jwt.Auth.Endpoints.UseCases;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Requests;
+using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Responses;
+using AspNetCore.Jwt.Auth.Endpoints.Extensions;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
+using AspNetCore.Jwt.Auth.Endpoints.Settings;
+using AspNetCore.Jwt.Auth.Endpoints.UseCases;
 using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 
-namespace Jwt.Auth.Endpoints.Endpoints;
+namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints;
 
 static internal class RegisterEndpoint
 {

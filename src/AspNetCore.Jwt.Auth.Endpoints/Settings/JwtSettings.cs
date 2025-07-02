@@ -1,4 +1,4 @@
-﻿namespace Jwt.Auth.Endpoints.Settings;
+﻿namespace AspNetCore.Jwt.Auth.Endpoints.Settings;
 
 public class JwtSettings
 {

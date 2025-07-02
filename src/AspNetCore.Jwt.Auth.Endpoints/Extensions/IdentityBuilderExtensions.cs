@@ -1,10 +1,9 @@
-﻿using Jwt.Auth.Endpoints;
-using Jwt.Auth.Endpoints.Extensions;
-using Jwt.Auth.Endpoints.Helpers;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.Settings;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
-namespace Jwt.IdentityEndpoints.Extensions;
+namespace AspNetCore.Jwt.Auth.Endpoints.Extensions;
 
 public static class IdentityBuilderExtensions
 {

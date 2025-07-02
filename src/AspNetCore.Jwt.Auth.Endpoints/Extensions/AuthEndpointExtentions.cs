@@ -1,6 +1,6 @@
-﻿using Jwt.Auth.Endpoints.Endpoints;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Endpoints;
 
-namespace Jwt.Auth.Endpoints.Extensions;
+namespace AspNetCore.Jwt.Auth.Endpoints.Extensions;
 
 public static class AuthEndpointExtentions
 {

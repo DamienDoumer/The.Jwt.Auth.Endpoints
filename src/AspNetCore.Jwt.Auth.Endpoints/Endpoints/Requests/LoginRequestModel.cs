@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Jwt.Auth.Endpoints.Endpoints.Requests;
+namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints.Requests;
 public class LoginRequestModel
 {
     [Required]

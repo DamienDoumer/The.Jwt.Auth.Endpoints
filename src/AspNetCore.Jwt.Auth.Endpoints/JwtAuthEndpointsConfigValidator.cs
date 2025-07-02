@@ -1,8 +1,9 @@
-﻿using Jwt.Auth.Endpoints.Helpers;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
-namespace Jwt.Auth.Endpoints;
+namespace AspNetCore.Jwt.Auth.Endpoints;
 
 public class JwtAuthEndpointsConfigValidator : IValidateOptions<JwtAuthEndpointsConfigOptions>
 {

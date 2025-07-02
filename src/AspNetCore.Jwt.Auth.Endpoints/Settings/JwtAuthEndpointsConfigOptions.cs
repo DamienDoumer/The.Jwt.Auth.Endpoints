@@ -1,9 +1,9 @@
-﻿using FirebaseAdmin;
-using Jwt.Auth.Endpoints.Helpers;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace Jwt.Auth.Endpoints.Settings;
+namespace AspNetCore.Jwt.Auth.Endpoints.Settings;
 
 public class JwtAuthEndpointsConfigOptions
 {

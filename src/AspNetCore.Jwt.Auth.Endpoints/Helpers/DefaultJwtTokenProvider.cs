@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
+using AspNetCore.Jwt.Auth.Endpoints.Settings;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
-namespace Jwt.Auth.Endpoints.Helpers;
+namespace AspNetCore.Jwt.Auth.Endpoints.Helpers;
 
 public class DefaultJwtTokenProvider : IJwtTokenProvider
 {

@@ -1,4 +1,4 @@
-﻿namespace Jwt.Auth.Endpoints.Helpers;
+﻿namespace AspNetCore.Jwt.Auth.Endpoints.Helpers;
 internal class DefaultUserFactory : IIdentityUserFactory<IdentityUser>
 {
     public IdentityUser CreateUser(string firstName, string secondName, string email, string? picture = null)
