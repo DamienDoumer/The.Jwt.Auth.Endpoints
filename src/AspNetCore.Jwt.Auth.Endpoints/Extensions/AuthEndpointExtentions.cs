@@ -1,6 +1,5 @@
 ﻿using AspNetCore.Jwt.Auth.Endpoints.Endpoints;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Jwt.Auth.Endpoints.Extensions;
 
@@ -24,5 +23,5 @@ public static class AuthEndpointExtentions
         return builder;
     }
 
-    public static string[] Tag { get; set; } = { "Authentication" };
+    public static string[] Tag { get; set; } = ["Authentication"];
 }
