@@ -6,13 +6,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AspNetCore.Jwt.Auth.Endpoints.Helpers;
 
-public class DefaultJwtTokenProvider : IJwtTokenProvider
+public class DefaultJwtTokenProvider<TUser> : IJwtTokenProvider where TUser : IdentityUser
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<TUser> _userManager;
     private readonly JwtAuthEndpointsConfigOptions _jwtOptions;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    public DefaultJwtTokenProvider(UserManager<IdentityUser> userManager, 
+    public DefaultJwtTokenProvider(UserManager<TUser> userManager, 
         IOptions<JwtAuthEndpointsConfigOptions> jwtOptions,
         IRefreshTokenRepository refreshTokenRepository)
     {

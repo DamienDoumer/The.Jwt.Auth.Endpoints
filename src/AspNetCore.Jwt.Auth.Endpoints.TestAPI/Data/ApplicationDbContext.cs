@@ -1,4 +1,4 @@
-using AspNetCore.Jwt.Auth.Endpoints.TestAPI.Models;
+using AspNetCore.Jwt.Auth.Endpoints.TestAPI.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

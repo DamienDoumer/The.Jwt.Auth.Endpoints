@@ -1,7 +1,8 @@
 using AspNetCore.Jwt.Auth.Endpoints.Extensions;
-using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 using AspNetCore.Jwt.Auth.Endpoints.TestAPI.Data;
-using AspNetCore.Jwt.Auth.Endpoints.TestAPI.Models;
+using AspNetCore.Jwt.Auth.Endpoints.TestAPI.Data.Models;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +38,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
 {
     // Configure JWT settings
-    options.JwtSettings.Secret = "your-super-secret-key-that-should-be-at-least-32-characters-long";
+    options.JwtSettings.Secret = "your-super-secret-key";
     options.JwtSettings.Issuer = "TestAPI";
     options.JwtSettings.Audience = "TestAPI";
     options.JwtSettings.TokenLifeSpanInMinutes = 60;
@@ -52,11 +53,14 @@ builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "TestAPI",
         ValidAudience = "TestAPI",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-super-secret-key-that-should-be-at-least-32-characters-long"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-super-secret-key"))
     };
     
-    // Google Firebase Auth is optional - leave null if not using
-    options.GoogleFirebaseAuthOptions = null;
+    // NOTE: Google Firebase Auth is optional - leave null if not using
+    options.GoogleFirebaseAuthOptions = new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile("FirebaseServiceAccountFile.json")
+    };
 });
 
 var app = builder.Build();

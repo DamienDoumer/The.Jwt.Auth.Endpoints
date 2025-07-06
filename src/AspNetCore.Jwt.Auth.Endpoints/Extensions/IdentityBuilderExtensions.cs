@@ -28,7 +28,7 @@ public static class IdentityBuilderExtensions
 
         services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
         services.TryAddSingleton<IIdentityUserFactory<IdentityUser>, DefaultUserFactory>();
-        services.TryAddSingleton<IJwtTokenProvider, DefaultJwtTokenProvider>();
+        services.TryAddSingleton<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
         var builder = services.AddOptions<JwtAuthEndpointsConfigOptions>();
         var opts = new JwtAuthEndpointsConfigOptions();
 

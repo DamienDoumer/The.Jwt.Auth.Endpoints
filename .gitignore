@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 **/.claude/settings.local.json
+/src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/FirebaseServiceAccountFile.json
