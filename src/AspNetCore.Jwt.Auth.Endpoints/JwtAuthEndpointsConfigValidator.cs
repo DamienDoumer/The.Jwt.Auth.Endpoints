@@ -9,11 +9,6 @@ public class JwtAuthEndpointsConfigValidator : IValidateOptions<JwtAuthEndpoints
 {
     public ValidateOptionsResult Validate(string name, JwtAuthEndpointsConfigOptions options)
     {
-        if (options.UserFactory == null)
-        {
-            return ValidateOptionsResult.Fail("UserFactory must be configured.");
-        }
-
         if (options.JwtSettings == null ||
             (
                 string.IsNullOrWhiteSpace(options.JwtSettings.Audience) ||

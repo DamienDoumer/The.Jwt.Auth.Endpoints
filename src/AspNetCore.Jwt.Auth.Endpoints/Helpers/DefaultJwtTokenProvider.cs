@@ -66,7 +66,8 @@ public class DefaultJwtTokenProvider<TUser> : IJwtTokenProvider where TUser : Id
         await _refreshTokenRepository.AddOrUpdateRefreshToken(userId, refreshToken, refreshTokenExpiryTime);
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var authResponse = new AuthToken(tokenHandler.WriteToken(token),
+        var encryptedToken = tokenHandler.WriteToken(token);
+        var authResponse = new AuthToken(encryptedToken,
                 refreshToken, _jwtOptions.JwtSettings.TokenLifeSpanInMinutes,
                 _jwtOptions.JwtSettings.RefreshTokenLifeSpanInMinutes);
 

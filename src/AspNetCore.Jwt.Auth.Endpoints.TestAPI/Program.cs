@@ -36,15 +36,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-//***NOTE***: This is Required, for the JWT AUTH TO WORK
+//***NOTE***: These are Required, for the JWT AUTH TO WORK
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IIdentityUserFactory<ApplicationUser>, SimpleUserFactory>();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
 {
     // Configure JWT settings
-    options.JwtSettings.Secret = "your-super-secret-key";
-    options.JwtSettings.Issuer = "TestAPI";
+    options.JwtSettings.Secret = "your-super-secret-key-that-should-be-at-least-32-characters-long";
+    options.JwtSettings.Issuer = "https://TestAPI";
     options.JwtSettings.Audience = "TestAPI";
     options.JwtSettings.TokenLifeSpanInMinutes = 60;
     options.JwtSettings.RefreshTokenLifeSpanInMinutes = 1440; // 24 hours
@@ -58,7 +59,7 @@ builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "TestAPI",
         ValidAudience = "TestAPI",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-super-secret-key"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-super-secret-key-that-should-be-at-least-32-characters-long"))
     };
     
     // NOTE: Google Firebase Auth is optional - leave null if not using

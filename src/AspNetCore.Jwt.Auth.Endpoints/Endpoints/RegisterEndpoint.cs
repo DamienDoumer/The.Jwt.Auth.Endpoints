@@ -33,15 +33,6 @@ static internal class RegisterEndpoint
                 var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
                 var userFactory = serviceProvider.GetRequiredService<IIdentityUserFactory<TUser>>();
 
-                var result = await signInManager.PasswordSignInAsync(registerRequestModel.Email,
-                        registerRequestModel.Password, false, false);
-                if (!result.Succeeded)
-                    return Results.Problem(new ProblemDetails
-                    {
-                        Title = "Email or password not correct.",
-                        Status = StatusCodes.Status401Unauthorized
-                    });
-
                 var user = await userManager.FindByEmailAsync(registerRequestModel.Email);
                 if (user != null)
                     return Results.Problem(new ProblemDetails
@@ -52,10 +43,6 @@ static internal class RegisterEndpoint
 
                 user = await userManager.Register(userFactory, registerRequestModel.FirstName,
                         registerRequestModel.LastName, registerRequestModel.Email, registerRequestModel.Password);
-
-                //TODO: In stable versions, implement Email confirmation flow, and remove this:
-                user.EmailConfirmed = true;
-                await userManager.UpdateAsync(user);
 
                 var token = await jwtProvider.CreateToken(user.Id);
                 return Results.Ok(new AuthResponseModel

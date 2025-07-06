@@ -28,7 +28,6 @@ public static class IdentityBuilderExtensions
 
     services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
 
-    services.TryAddScoped<IIdentityUserFactory<IdentityUser>, DefaultUserFactory>();
     services.TryAddScoped<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
 
     // Configure authentication and JWT bearer

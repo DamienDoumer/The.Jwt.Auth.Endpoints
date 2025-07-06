@@ -1,5 +1,4 @@
-﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
-using FirebaseAdmin;
+﻿using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -11,16 +10,10 @@ public class JwtAuthEndpointsConfigOptions
     public JwtSettings JwtSettings { get; set; }
     public AuthenticationOptions AuthenticationScheme { get; private set; }
     public AppOptions? GoogleFirebaseAuthOptions { get; set; }
-    /// <summary>
-    /// This is a factory used to instantiate identity users with total flexibility.
-    /// </summary>
-    public IIdentityUserFactory<IdentityUser> UserFactory { get; set; }
 
     public JwtAuthEndpointsConfigOptions(JwtBearerOptions jwtOptions,
-        IIdentityUserFactory<IdentityUser> userFactory,
         AppOptions? googleFirebaseAuthOptions = default) : this()
     {
-        UserFactory = userFactory;
         GoogleFirebaseAuthOptions = googleFirebaseAuthOptions;
         JwtAuthSchemeOptions = jwtOptions;
     }
@@ -30,7 +23,6 @@ public class JwtAuthEndpointsConfigOptions
         JwtAuthSchemeOptions = new JwtBearerOptions();
         JwtSettings = new JwtSettings();
         JwtSettings = new JwtSettings();
-        UserFactory = new DefaultUserFactory();
         AuthenticationScheme = new AuthenticationOptions
         {
             DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme,
