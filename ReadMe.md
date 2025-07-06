@@ -25,3 +25,7 @@ it is recommended to leverage advanced authentication tools like Duende Identity
         Credential = GoogleCredential.FromFile("FirebaseServiceAccountFile.json")
     };
 ```
+
+## General
+- If you want more control over how your users are created during the registration process, 
+Implement __IIdentityUserFactory__ and register it in the DI container.
