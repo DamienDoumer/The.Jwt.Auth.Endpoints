@@ -1,7 +1,5 @@
 ﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -21,64 +19,60 @@ public static class IdentityBuilderExtensions
     }
 
     public static IServiceCollection AddJwtAuthEndpoints<TUser>(this IServiceCollection services,
-        Action<JwtAuthEndpointsConfigOptions> config) where TUser : IdentityUser, new()
+        Action<JwtAuthEndpointsConfigOptions> configureOptions) where TUser : IdentityUser, new()
     {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(services);
+    ArgumentNullException.ThrowIfNull(configureOptions);
 
-        services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
-        services.TryAddSingleton<IIdentityUserFactory<IdentityUser>, DefaultUserFactory>();
-        services.TryAddSingleton<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
-        var builder = services.AddOptions<JwtAuthEndpointsConfigOptions>();
-        var opts = new JwtAuthEndpointsConfigOptions();
+    services.Configure(configureOptions);
 
-        builder.Configure(config);
+    services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
 
-        services.PostConfigure<JwtAuthEndpointsConfigOptions>(options =>
+    services.TryAddScoped<IIdentityUserFactory<IdentityUser>, DefaultUserFactory>();
+    services.TryAddScoped<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
+
+    // Configure authentication and JWT bearer
+    services.AddAuthentication(options =>
         {
-            if (options.GoogleFirebaseAuthOptions != null)
+            var config = new JwtAuthEndpointsConfigOptions();
+            configureOptions(config);
+
+            options.DefaultAuthenticateScheme = config.AuthenticationScheme.DefaultAuthenticateScheme;
+            options.DefaultChallengeScheme = config.AuthenticationScheme.DefaultChallengeScheme;
+            options.DefaultScheme = config.AuthenticationScheme.DefaultScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            var config = new JwtAuthEndpointsConfigOptions();
+            configureOptions(config);
+
+            var jwt = config.JwtAuthSchemeOptions;
+
+            options.RequireHttpsMetadata = jwt.RequireHttpsMetadata;
+            options.MetadataAddress = jwt.MetadataAddress;
+            options.Authority = jwt.Authority;
+            options.Audience = jwt.Audience;
+            options.Challenge = jwt.Challenge;
+            options.Events = jwt.Events;
+            options.BackchannelHttpHandler = jwt.BackchannelHttpHandler;
+            options.Backchannel = jwt.Backchannel;
+            options.BackchannelTimeout = jwt.BackchannelTimeout;
+            options.Configuration = jwt.Configuration;
+            options.ConfigurationManager = jwt.ConfigurationManager;
+            options.RefreshOnIssuerKeyNotFound = jwt.RefreshOnIssuerKeyNotFound;
+            options.TokenValidationParameters = jwt.TokenValidationParameters;
+            options.SaveToken = jwt.SaveToken;
+            options.IncludeErrorDetails = jwt.IncludeErrorDetails;
+            options.MapInboundClaims = jwt.MapInboundClaims;
+            options.AutomaticRefreshInterval = jwt.AutomaticRefreshInterval;
+            options.RefreshInterval = jwt.RefreshInterval;
+            options.UseSecurityTokenValidators = jwt.UseSecurityTokenValidators;
+
+            options.TokenHandlers.Clear();
+            foreach (var handler in jwt.TokenHandlers)
             {
-                FirebaseApp.Create(options.GoogleFirebaseAuthOptions);
+                options.TokenHandlers.Add(handler);
             }
-            
-            services.AddAuthentication(opt =>
-            {
-                opt.DefaultAuthenticateScheme = opt.DefaultAuthenticateScheme;
-                opt.DefaultChallengeScheme = opt.DefaultChallengeScheme;
-                opt.DefaultScheme = opt.DefaultScheme;
-                opt.DefaultForbidScheme = opt.DefaultForbidScheme;
-                opt.DefaultSignInScheme = opt.DefaultSignInScheme;
-                opt.DefaultSignOutScheme = opt.DefaultSignOutScheme;
-                opt.RequireAuthenticatedSignIn = opt.RequireAuthenticatedSignIn;
-            })
-            .AddJwtBearer(opt =>
-            {
-                opt.RequireHttpsMetadata = options.JwtAuthSchemeOptions.RequireHttpsMetadata;
-                opt.MetadataAddress = options.JwtAuthSchemeOptions.MetadataAddress;
-                opt.Authority = options.JwtAuthSchemeOptions.Authority;
-                opt.Audience = options.JwtAuthSchemeOptions.Audience;
-                opt.Challenge = options.JwtAuthSchemeOptions.Challenge;
-                opt.Events = options.JwtAuthSchemeOptions.Events;
-                opt.BackchannelHttpHandler = options.JwtAuthSchemeOptions.BackchannelHttpHandler;
-                opt.Backchannel = options.JwtAuthSchemeOptions.Backchannel;
-                opt.BackchannelTimeout = options.JwtAuthSchemeOptions.BackchannelTimeout;
-                opt.Configuration = options.JwtAuthSchemeOptions.Configuration;
-                opt.ConfigurationManager = options.JwtAuthSchemeOptions.ConfigurationManager;
-                opt.RefreshOnIssuerKeyNotFound = options.JwtAuthSchemeOptions.RefreshOnIssuerKeyNotFound;
-                opt.TokenValidationParameters = options.JwtAuthSchemeOptions.TokenValidationParameters;
-                opt.SaveToken = options.JwtAuthSchemeOptions.SaveToken;
-                opt.IncludeErrorDetails = options.JwtAuthSchemeOptions.IncludeErrorDetails;
-                opt.MapInboundClaims = options.JwtAuthSchemeOptions.MapInboundClaims;
-                opt.AutomaticRefreshInterval = options.JwtAuthSchemeOptions.AutomaticRefreshInterval;
-                opt.RefreshInterval = options.JwtAuthSchemeOptions.RefreshInterval;
-                opt.UseSecurityTokenValidators = options.JwtAuthSchemeOptions.UseSecurityTokenValidators;
-                // TokenHandlers is a list, so copy elements if needed
-                opt.TokenHandlers.Clear();
-                foreach (var handler in options.JwtAuthSchemeOptions.TokenHandlers)
-                {
-                    opt.TokenHandlers.Add(handler);
-                }
-            });
         });
 
         return services;

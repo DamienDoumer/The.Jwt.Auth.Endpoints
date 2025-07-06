@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+//***NOTE***: This is Required, for the JWT AUTH TO WORK
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>

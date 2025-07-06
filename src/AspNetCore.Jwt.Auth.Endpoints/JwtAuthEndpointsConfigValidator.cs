@@ -7,22 +7,8 @@ namespace AspNetCore.Jwt.Auth.Endpoints;
 
 public class JwtAuthEndpointsConfigValidator : IValidateOptions<JwtAuthEndpointsConfigOptions>
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public JwtAuthEndpointsConfigValidator(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public ValidateOptionsResult Validate(string name, JwtAuthEndpointsConfigOptions options)
     {
-        var refreshTokenRepo = _serviceProvider.GetService<IRefreshTokenRepository>();
-
-        if (refreshTokenRepo == null)
-        {
-            return ValidateOptionsResult.Fail("IRefreshTokenRepository must be registered in the service container.");
-        }
-
         if (options.UserFactory == null)
         {
             return ValidateOptionsResult.Fail("UserFactory must be configured.");

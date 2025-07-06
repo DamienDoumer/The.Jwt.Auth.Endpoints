@@ -16,4 +16,10 @@
     <ProjectReference Include="..\AspNetCore.Jwt.Auth.Endpoints\AspNetCore.Jwt.Auth.Endpoints.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="FirebaseServiceAccountFile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
