@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 **/.claude/settings.local.json
 /src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/FirebaseServiceAccountFile.json
+/src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db
+/src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db-shm
+/src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db-wal
