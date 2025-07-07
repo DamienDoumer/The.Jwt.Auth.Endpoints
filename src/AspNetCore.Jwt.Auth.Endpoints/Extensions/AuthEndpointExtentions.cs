@@ -15,7 +15,9 @@ public static class AuthEndpointExtentions
             .MapLoginEndpoint<TUser>()
             .MapRegisterEndpoint<TUser>()
             .MapRefreshTokenEndpoint<TUser>()
-            .MapEmailConfirmationEndpoint<TUser>();
+            .MapEmailConfirmationEndpoint<TUser>()
+            .MapForgotPasswordEndpoint<TUser>()
+            .MapResetPasswordEndpoint<TUser>();
 
         if (configOptions.Value.GoogleFirebaseAuthOptions != null)
         {

@@ -2,6 +2,7 @@ using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Responses;
 using AspNetCore.Jwt.Auth.Endpoints.Extensions;
 using AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints;
 
@@ -12,7 +13,7 @@ internal static class EmailConfirmationEndpoint
     public static IEndpointRouteBuilder MapEmailConfirmationEndpoint<TUser>(this IEndpointRouteBuilder app)
         where TUser : IdentityUser
     {
-        app.MapPost(AuthConstants.EmailConfirmationEndpoint,
+        app.MapGet(AuthConstants.EmailConfirmationEndpoint,
                 async ([FromQuery] string userId, [FromQuery] string token,
                        [FromServices] UserManager<TUser> userManager) =>
                 {
@@ -28,7 +29,7 @@ internal static class EmailConfirmationEndpoint
                             });
                         }
 
-                        if (user.EmailConfirmed)
+                        if (await userManager.IsEmailConfirmedAsync(user))
                         {
                             return Results.Ok(new EmailConfirmationResponseModel
                             {
@@ -37,7 +38,8 @@ internal static class EmailConfirmationEndpoint
                             });
                         }
 
-                        var result = await userManager.ConfirmEmailAsync(user, token);
+                        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+                        var result = await userManager.ConfirmEmailAsync(user, decodedToken);
                         if (result.Succeeded)
                         {
                             return Results.Ok(new EmailConfirmationResponseModel
@@ -51,6 +53,14 @@ internal static class EmailConfirmationEndpoint
                         return Results.Problem(new ProblemDetails
                         {
                             Title = string.Join(", ", errors),
+                            Status = StatusCodes.Status400BadRequest
+                        });
+                    }
+                    catch (FormatException e)
+                    {
+                        return Results.Problem(new ProblemDetails
+                        {
+                            Title = "The token is invalid.",
                             Status = StatusCodes.Status400BadRequest
                         });
                     }

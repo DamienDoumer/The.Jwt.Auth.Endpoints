@@ -1,10 +1,12 @@
-﻿using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Requests;
+﻿using System.Text.Encodings.Web;
+using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Requests;
 using AspNetCore.Jwt.Auth.Endpoints.Endpoints.Responses;
 using AspNetCore.Jwt.Auth.Endpoints.Extensions;
 using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 using AspNetCore.Jwt.Auth.Endpoints.Helpers.Exceptions;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
 using AspNetCore.Jwt.Auth.Endpoints.UseCases;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 
 namespace AspNetCore.Jwt.Auth.Endpoints.Endpoints;
@@ -46,11 +48,12 @@ static internal class RegisterEndpoint
                 var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 
                 var httpContext = httpContextAccessor.HttpContext!;
+                var base64Token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmationToken));
                 var confirmationLink = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/" +
-                                     $"{AuthConstants.EmailConfirmationEndpoint}?userId={user.Id}&token={Uri.EscapeDataString(emailConfirmationToken)}";
+                                     $"{AuthConstants.EmailConfirmationEndpoint}?userId={user.Id}&token={base64Token}";
 
                 await emailSender.SendConfirmationLinkAsync(user, user.Email!,
-                    confirmationLink);
+                    HtmlEncoder.Default.Encode(confirmationLink));
                 
                 var token = await jwtProvider.CreateToken(user.Id);
                 

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 
 namespace AspNetCore.Jwt.Auth.Endpoints.Tests;
 
@@ -284,7 +285,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         // Get the confirmation link from the sent email
         var sentEmail = _factory.MockEmailSender.SentEmails.First();
-        var confirmationLink = sentEmail.Content;
+        var confirmationLink = WebUtility.HtmlDecode(sentEmail.Content);
         
         // Extract userId and token from the link
         var uri = new Uri(confirmationLink);
@@ -294,7 +295,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         // Call confirmation endpoint
         var confirmationUrl = $"/api/auth/confirmEmail?userId={userId}&token={Uri.EscapeDataString(token!)}";
-        var response = await _client.PostAsync(confirmationUrl, null);
+        var response = await _client.GetAsync(confirmationUrl);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
@@ -332,13 +333,13 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         // Get the user ID but use invalid token
         var sentEmail = _factory.MockEmailSender.SentEmails.First();
-        var confirmationLink = sentEmail.Content;
+        var confirmationLink = WebUtility.HtmlDecode(sentEmail.Content);
         var uri = new Uri(confirmationLink);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
         var userId = query["userId"];
 
         var confirmationUrl = $"/api/auth/confirmEmail?userId={userId}&token=invalid-token";
-        var response = await _client.PostAsync(confirmationUrl, null);
+        var response = await _client.GetAsync(confirmationUrl);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -347,7 +348,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
     public async Task EmailConfirmationEndpoint_WithInvalidUserId_ShouldReturnNotFound()
     {
         var confirmationUrl = "/api/auth/confirmEmail?userId=invalid-user-id&token=some-token";
-        var response = await _client.PostAsync(confirmationUrl, null);
+        var response = await _client.GetAsync(confirmationUrl);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         
@@ -360,17 +361,14 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
     {
         // Create a user with already confirmed email
         await SeedUserAsync("alreadyconfirmed@example.com", "TestPassword123", emailConfirmed: true);
-
-        // Try to confirm again (this should still return success)
-        var confirmationUrl = "/api/auth/confirmEmail?userId=some-id&token=some-token";
         
         // We need to get actual user ID for this test
         using var scope = _factory.Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var user = await userManager.FindByEmailAsync("alreadyconfirmed@example.com");
         
-        confirmationUrl = $"/api/auth/confirmEmail?userId={user!.Id}&token=any-token";
-        var response = await _client.PostAsync(confirmationUrl, null);
+        var confirmationUrl = $"/api/auth/confirmEmail?userId={user!.Id}&token=any-token";
+        var response = await _client.GetAsync(confirmationUrl);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
@@ -440,14 +438,14 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         var sentEmail = _factory.MockEmailSender.SentEmails.First();
 
         // Step 3: Extract confirmation link and confirm email
-        var confirmationLink = sentEmail.Content;
+        var confirmationLink = WebUtility.HtmlDecode(sentEmail.Content);
         var uri = new Uri(confirmationLink);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
         var userId = query["userId"];
         var token = query["token"];
 
         var confirmationUrl = $"/api/auth/confirmEmail?userId={userId}&token={Uri.EscapeDataString(token!)}";
-        var confirmationResponse = await _client.PostAsync(confirmationUrl, null);
+        var confirmationResponse = await _client.GetAsync(confirmationUrl);
         confirmationResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         // Step 4: Login should now work
@@ -463,6 +461,216 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         var loginContent = await loginResponse.Content.ReadAsStringAsync();
         var authResponse = JsonConvert.DeserializeObject<AuthResponseModel>(loginContent);
         
+        authResponse.Should().NotBeNull();
+        authResponse!.Token.Should().NotBeNullOrEmpty();
+        authResponse.RefreshToken.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task ForgotPasswordEndpoint_WithValidEmail_ShouldReturnSuccessAndSendEmail()
+    {
+        // Clear any previous emails
+        _factory.MockEmailSender.Clear();
+
+        // Create a user first
+        await SeedUserAsync("forgotpassword@example.com", "TestPassword123");
+
+        var forgotPasswordRequest = new ForgotPasswordRequestModel
+        {
+            Email = "forgotpassword@example.com"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/forgotPassword", forgotPasswordRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var content = await response.Content.ReadAsStringAsync();
+        var forgotPasswordResponse = JsonConvert.DeserializeObject<GenericResponseModel>(content);
+
+        forgotPasswordResponse.Should().NotBeNull();
+        forgotPasswordResponse!.Success.Should().BeTrue();
+        forgotPasswordResponse.Message.Should().Contain("password reset link");
+
+        // Verify email was sent
+        _factory.MockEmailSender.SentEmails.Should().HaveCount(1);
+        var sentEmail = _factory.MockEmailSender.SentEmails.First();
+        sentEmail.Type.Should().Be(EmailType.PasswordResetCode);
+        sentEmail.Email.Should().Be("forgotpassword@example.com");
+        sentEmail.Content.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task ForgotPasswordEndpoint_WithNonexistentEmail_ShouldReturnSuccessWithoutRevealingUserExistence()
+    {
+        var forgotPasswordRequest = new ForgotPasswordRequestModel
+        {
+            Email = "nonexistent@example.com"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/forgotPassword", forgotPasswordRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var content = await response.Content.ReadAsStringAsync();
+        var forgotPasswordResponse = JsonConvert.DeserializeObject<GenericResponseModel>(content);
+
+        forgotPasswordResponse.Should().NotBeNull();
+        forgotPasswordResponse!.Success.Should().BeTrue();
+        forgotPasswordResponse.Message.Should().Contain("password reset link");
+    }
+
+    [Fact]
+    public async Task ForgotPasswordEndpoint_WithInvalidEmail_ShouldReturnBadRequest()
+    {
+        var forgotPasswordRequest = new ForgotPasswordRequestModel
+        {
+            Email = "invalid-email"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/forgotPassword", forgotPasswordRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ResetPasswordEndpoint_WithValidToken_ShouldResetPassword()
+    {
+        // Clear any previous emails
+        _factory.MockEmailSender.Clear();
+
+        var email = "resetpassword@example.com";
+        var originalPassword = "TestPassword123";
+        var newPassword = "NewPassword456";
+
+        // Create user
+        await SeedUserAsync(email, originalPassword);
+
+        // Request password reset
+        var forgotPasswordRequest = new ForgotPasswordRequestModel { Email = email };
+        await _client.PostAsJsonAsync("/api/auth/forgotPassword", forgotPasswordRequest);
+
+        // Get reset token from email
+        var sentEmail = _factory.MockEmailSender.SentEmails.First();
+        var token = sentEmail.Content;
+
+        // Reset password
+        var resetPasswordRequest = new ResetPasswordRequestModel
+        {
+            Email = email,
+            Token = token!,
+            NewPassword = newPassword
+        };
+
+        var resetResponse = await _client.PostAsJsonAsync("/api/auth/resetPassword", resetPasswordRequest);
+
+        resetResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var content = await resetResponse.Content.ReadAsStringAsync();
+        var resetPasswordResponse = JsonConvert.DeserializeObject<GenericResponseModel>(content);
+
+        resetPasswordResponse.Should().NotBeNull();
+        resetPasswordResponse!.Success.Should().BeTrue();
+        resetPasswordResponse.Message.Should().Contain("successfully reset");
+
+        // Verify can login with new password
+        var loginRequest = new LoginRequestModel
+        {
+            Email = email,
+            Password = newPassword
+        };
+
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Verify cannot login with old password
+        var oldPasswordLoginRequest = new LoginRequestModel
+        {
+            Email = email,
+            Password = originalPassword
+        };
+
+        var oldPasswordLoginResponse = await _client.PostAsJsonAsync("/api/auth/login", oldPasswordLoginRequest);
+        oldPasswordLoginResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ResetPasswordEndpoint_WithInvalidToken_ShouldReturnBadRequest()
+    {
+        var resetPasswordRequest = new ResetPasswordRequestModel
+        {
+            Email = "resetpassword2@example.com",
+            Token = "invalid-token",
+            NewPassword = "NewPassword456"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/resetPassword", resetPasswordRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ResetPasswordEndpoint_WithNonexistentUser_ShouldReturnBadRequest()
+    {
+        var resetPasswordRequest = new ResetPasswordRequestModel
+        {
+            Email = "nonexistent@example.com",
+            Token = "some-token",
+            NewPassword = "NewPassword456"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/resetPassword", resetPasswordRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task PasswordResetFlow_ShouldWorkEndToEnd()
+    {
+        // Clear any previous emails
+        _factory.MockEmailSender.Clear();
+
+        var email = "passwordflowtest@example.com";
+        var originalPassword = "OriginalPassword123";
+        var newPassword = "NewPassword456";
+
+        // Step 1: Create user
+        await SeedUserAsync(email, originalPassword);
+
+        // Step 2: Request password reset
+        var forgotPasswordRequest = new ForgotPasswordRequestModel { Email = email };
+        var forgotResponse = await _client.PostAsJsonAsync("/api/auth/forgotPassword", forgotPasswordRequest);
+        forgotResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Step 3: Verify email was sent
+        _factory.MockEmailSender.SentEmails.Should().HaveCount(1);
+        var sentEmail = _factory.MockEmailSender.SentEmails.First();
+        sentEmail.Type.Should().Be(EmailType.PasswordResetCode);
+
+        var token = sentEmail.Content;
+
+        var resetPasswordRequest = new ResetPasswordRequestModel
+        {
+            Email = email,
+            Token = token!,
+            NewPassword = newPassword
+        };
+
+        var resetResponse = await _client.PostAsJsonAsync("/api/auth/resetPassword", resetPasswordRequest);
+        resetResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Step 5: Verify can login with new password
+        var loginRequest = new LoginRequestModel
+        {
+            Email = email,
+            Password = newPassword
+        };
+
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var loginContent = await loginResponse.Content.ReadAsStringAsync();
+        var authResponse = JsonConvert.DeserializeObject<AuthResponseModel>(loginContent);
+
         authResponse.Should().NotBeNull();
         authResponse!.Token.Should().NotBeNullOrEmpty();
         authResponse.RefreshToken.Should().NotBeNullOrEmpty();
