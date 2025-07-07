@@ -46,7 +46,7 @@ static internal class RegisterEndpoint
                 var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 
                 var httpContext = httpContextAccessor.HttpContext!;
-                var confirmationLink = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}" +
+                var confirmationLink = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/" +
                                      $"{AuthConstants.EmailConfirmationEndpoint}?userId={user.Id}&token={Uri.EscapeDataString(emailConfirmationToken)}";
 
                 await emailSender.SendConfirmationLinkAsync(user, user.Email!,

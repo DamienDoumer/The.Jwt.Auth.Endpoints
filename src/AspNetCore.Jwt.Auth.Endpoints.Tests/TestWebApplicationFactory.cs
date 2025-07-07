@@ -17,6 +17,7 @@ namespace AspNetCore.Jwt.Auth.Endpoints.Tests;
 public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly string _connectionString = $"Data Source=test_db_{Guid.NewGuid()}.db";
+    public MockEmailSender MockEmailSender { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -29,11 +30,21 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
                 services.Remove(descriptor);
             }
 
+            // Remove existing EmailSender registration
+            var emailSenderDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IEmailSender<ApplicationUser>));
+            if (emailSenderDescriptor != null)
+            {
+                services.Remove(emailSenderDescriptor);
+            }
+
             // Add SQLite database for testing with unique name
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlite(_connectionString);
             });
+
+            // Add mock email sender
+            services.AddSingleton<IEmailSender<ApplicationUser>>(MockEmailSender);
         });
 
         builder.UseEnvironment("Testing");
