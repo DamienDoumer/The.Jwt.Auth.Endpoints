@@ -17,7 +17,9 @@ static internal class LoginEndpoint
     {
         app.MapPost(AuthConstants.LoginEndpoint, async (
                 [FromBody] LoginRequestModel loginRequestModel,
-                [FromServices] IServiceProvider serviceProvider) =>
+                [FromServices] UserManager<TUser> userManager,
+                [FromServices] SignInManager<TUser> signInManager,
+                [FromServices] IJwtTokenProvider jwtProvider) =>
         {
             var validationResult = loginRequestModel.ValidateModel();
             if (validationResult != null)
@@ -27,9 +29,6 @@ static internal class LoginEndpoint
             
             try
             {
-                var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
-                var signInManager = serviceProvider.GetRequiredService<SignInManager<TUser>>();
-                var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
 
                 var result = await signInManager.PasswordSignInAsync(loginRequestModel.Email,
                         loginRequestModel.Password, false, false);

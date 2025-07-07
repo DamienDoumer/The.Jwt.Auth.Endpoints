@@ -18,7 +18,9 @@ static internal class RegisterEndpoint
     {
         app.MapPost(AuthConstants.RegisterEndpoint, async (
                 [FromBody] RegisterRequestModel registerRequestModel,
-                [FromServices] IServiceProvider serviceProvider) =>
+                [FromServices] UserManager<TUser> userManager,
+                [FromServices] IJwtTokenProvider jwtProvider,
+                [FromServices] IIdentityUserFactory<TUser> userFactory) =>
         {
             var validationResult = registerRequestModel.ValidateModel();
             if (validationResult != null)
@@ -28,9 +30,6 @@ static internal class RegisterEndpoint
 
             try
             {
-                var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
-                var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
-                var userFactory = serviceProvider.GetRequiredService<IIdentityUserFactory<TUser>>();
 
                 var user = await userManager.FindByEmailAsync(registerRequestModel.Email);
                 if (user != null)

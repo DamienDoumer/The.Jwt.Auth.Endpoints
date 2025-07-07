@@ -17,7 +17,11 @@ internal static class GoogleAuthEndpoint
         where TUser : IdentityUser
     {
         app.MapPost(AuthConstants.GoogleEndpoint, 
-                async ([FromBody] GoogleAuthRequestModel googleAuthRequest, [FromServices] IServiceProvider serviceProvider) =>
+                async ([FromBody] GoogleAuthRequestModel googleAuthRequest, 
+                       [FromServices] IIdentityUserFactory<TUser> userFactory,
+                       [FromServices] IOptions<JwtAuthEndpointsConfigOptions> configOptions,
+                       [FromServices] UserManager<TUser> userManager,
+                       [FromServices] IJwtTokenProvider jwtProvider) =>
                 {
                     var validationResult = googleAuthRequest.ValidateModel();
                     if (validationResult != null)
@@ -34,10 +38,6 @@ internal static class GoogleAuthEndpoint
                         var picture = firebaseToken.Claims[JwtRegisteredClaimNames.Picture]?.ToString();
                         var email = firebaseToken.Claims[JwtRegisteredClaimNames.Email].ToString();
 
-                        var userFactory = serviceProvider.GetRequiredService<IIdentityUserFactory<TUser>>();
-                        var configOptions = serviceProvider.GetRequiredService<IOptions<JwtAuthEndpointsConfigOptions>>();
-                        var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
-                        var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
                         var user = await userManager.FindByEmailAsync(email!);
                         AuthToken? token = null;
 

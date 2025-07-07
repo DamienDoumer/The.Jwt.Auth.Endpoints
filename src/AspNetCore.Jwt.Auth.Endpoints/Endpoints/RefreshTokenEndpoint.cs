@@ -19,7 +19,10 @@ internal static class RefreshTokenEndpoint
     {
         app.MapPost(AuthConstants.RefreshEndpoint, async (
                 [FromBody] RefreshTokenRequestModel requestModel,
-                [FromServices] IServiceProvider serviceProvider) =>
+                [FromServices] IRefreshTokenRepository refreshTokenRepository,
+                [FromServices] IOptions<JwtAuthEndpointsConfigOptions> configOptions,
+                [FromServices] UserManager<TUser> userManager,
+                [FromServices] IJwtTokenProvider jwtProvider) =>
         {
             var validationResult = requestModel.ValidateModel();
             if (validationResult != null)
@@ -29,10 +32,6 @@ internal static class RefreshTokenEndpoint
 
             try
             {
-                var refreshTokenRepository = serviceProvider.GetRequiredService<IRefreshTokenRepository>();
-                var configOptions = serviceProvider.GetRequiredService<IOptions<JwtAuthEndpointsConfigOptions>>();
-                var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
-                var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
 
                 var user = await userManager.CheckRefreshToken(requestModel.AccessToken,
                     refreshTokenRepository, requestModel.RefreshToken, configOptions.Value.JwtSettings);
