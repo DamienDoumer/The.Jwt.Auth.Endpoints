@@ -17,7 +17,10 @@ public class BaseException : Exception
     }
 
     public BaseException(string message, int statusCode)
-        : base(message) { }
+        : base(message)
+    {
+        StatusCode = statusCode;
+    }
 
     public BaseException(string message, string errorCode, Exception innerException)
         : base(message, innerException)

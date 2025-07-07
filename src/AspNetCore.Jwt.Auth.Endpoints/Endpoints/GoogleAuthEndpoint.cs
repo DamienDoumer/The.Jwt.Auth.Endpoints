@@ -58,6 +58,15 @@ internal static class GoogleAuthEndpoint
                     }
                     catch (Exception e)
                     {
+                        if (e.Source == "FirebaseAdmin")
+                        {
+                            return Results.Problem(new ProblemDetails
+                            {
+                                Title = e.Message,
+                                Status = StatusCodes.Status400BadRequest
+                            });
+                        }
+
                         return Results.Problem(new ProblemDetails
                         {
                             Title = e.Message,
