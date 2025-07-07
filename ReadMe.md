@@ -12,7 +12,7 @@ Microsoft released [Identity endpoints](https://learn.microsoft.com/en-us/aspnet
 Uses proprietary tokens instead of standard JWT, and has limited customization.
 
 This library provides the same functionality as Identity endpoints but with:
- **Standard JWT tokens** with full customization.
+ **Standard JWT tokens** with more customization.
 
 ## Installation
 Just add the nugget package to your project (__Doumer.AspNetCore.Jwt.Auth.Endpoints__)
