@@ -14,6 +14,11 @@ Uses proprietary tokens instead of standard JWT, and has limited customization.
 This library provides the same functionality as Identity endpoints but with:
  **Standard JWT tokens** with full customization.
 
+## Installation
+Just add the nugget package to your project (__Doumer.AspNetCore.Jwt.Auth.Endpoints__)
+```
+dotnet add package Doumer.AspNetCore.Jwt.Auth.Endpoints
+```
 ## Features
 
 - 🔐 **Complete Authentication Flow**: Login, registration, email confirmation, password reset

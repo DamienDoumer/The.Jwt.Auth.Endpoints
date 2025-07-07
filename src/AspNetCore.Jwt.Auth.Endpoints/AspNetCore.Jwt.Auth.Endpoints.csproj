@@ -4,6 +4,16 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+      <Version>1.0.0</Version>
+      <PackageId>Doumer.AspNetCore.Jwt.Auth.Endpoints</PackageId>
+      <Authors>Damien Doumer</Authors>
+      <Company>Doumer.me</Company>
+      <Description>
+          Add JWT auth + social auth and with endpoints ready to run, no configuration needed.
+          All that in a few steps.
+      </Description>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/DamienDoumer/AspNetCore.Jwt.Auth.Endpoints</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
