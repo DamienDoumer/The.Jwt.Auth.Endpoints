@@ -2,7 +2,7 @@
 
 internal class AuthConstants
 {
-    public const string AuthEnpointGroup = "auth";
+    public const string AuthEnpointGroup = "api/auth";
     public const string RegisterEndpoint = $"{AuthEnpointGroup}/register";
     public const string LoginEndpoint = $"{AuthEnpointGroup}/login";
     public const string GoogleEndpoint = $"{AuthEnpointGroup}/social/google";

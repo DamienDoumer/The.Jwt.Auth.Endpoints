@@ -100,3 +100,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+namespace AspNetCore.Jwt.Auth.Endpoints.TestAPI
+{
+    public partial class Program
+    {
+    }
+}

@@ -31,7 +31,7 @@ public static class IdentityBuilderExtensions
 
         var config = new JwtAuthEndpointsConfigOptions();
         configureOptions(config);
-        if (config.GoogleFirebaseAuthOptions != null)
+        if (config.GoogleFirebaseAuthOptions != null && FirebaseApp.DefaultInstance == null)
         {
             FirebaseApp.Create(config.GoogleFirebaseAuthOptions);
         }
