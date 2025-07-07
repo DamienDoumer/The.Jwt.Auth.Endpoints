@@ -9,6 +9,7 @@ internal class GoogleAuthRequestModel
     /// performs the social auth's first part on its side. Then hands
     /// over the rest to the server.
     /// </summary>
+    [Required]
     [StringLength(1000)]
     public string Token { get; set; }
 

@@ -20,16 +20,15 @@ static internal class RegisterEndpoint
                 [FromBody] RegisterRequestModel registerRequestModel,
                 [FromServices] IServiceProvider serviceProvider) =>
         {
-            //Prior to .NET 10, validation won't work properly on minimal APIs
-            //TODO: Use Email validation attributes to validate this.
-            //EmailAddressAttribute emailAddressAttribute = new EmailAddressAttribute();
+            var validationResult = registerRequestModel.ValidateModel();
+            if (validationResult != null)
+            {
+                return validationResult.CreateValidationErrorResult();
+            }
 
             try
             {
-                var refreshTokenRepository = serviceProvider.GetRequiredService<IRefreshTokenRepository>();
-                var configOptions = serviceProvider.GetRequiredService<IOptions<JwtAuthEndpointsConfigOptions>>();
                 var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
-                var signInManager = serviceProvider.GetRequiredService<SignInManager<TUser>>();
                 var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
                 var userFactory = serviceProvider.GetRequiredService<IIdentityUserFactory<TUser>>();
 

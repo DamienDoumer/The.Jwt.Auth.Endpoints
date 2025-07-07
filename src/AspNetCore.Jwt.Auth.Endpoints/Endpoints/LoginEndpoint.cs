@@ -19,10 +19,14 @@ static internal class LoginEndpoint
                 [FromBody] LoginRequestModel loginRequestModel,
                 [FromServices] IServiceProvider serviceProvider) =>
         {
+            var validationResult = loginRequestModel.ValidateModel();
+            if (validationResult != null)
+            {
+                return validationResult.CreateValidationErrorResult();
+            }
+            
             try
             {
-                var refreshTokenRepository = serviceProvider.GetRequiredService<IRefreshTokenRepository>();
-                var configOptions = serviceProvider.GetRequiredService<IOptions<JwtAuthEndpointsConfigOptions>>();
                 var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
                 var signInManager = serviceProvider.GetRequiredService<SignInManager<TUser>>();
                 var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();

@@ -19,6 +19,13 @@ internal static class GoogleAuthEndpoint
         app.MapPost(AuthConstants.GoogleEndpoint, 
                 async ([FromBody] GoogleAuthRequestModel googleAuthRequest, [FromServices] IServiceProvider serviceProvider) =>
                 {
+                    var validationResult = googleAuthRequest.ValidateModel();
+                    if (validationResult != null)
+                    {
+                        return validationResult.CreateValidationErrorResult();
+                    }
+
+                    
                     try
                     {
                         var firebaseToken = await FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance

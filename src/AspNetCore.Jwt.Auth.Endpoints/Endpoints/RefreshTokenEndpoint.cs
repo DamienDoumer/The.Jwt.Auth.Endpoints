@@ -21,6 +21,12 @@ internal static class RefreshTokenEndpoint
                 [FromBody] RefreshTokenRequestModel requestModel,
                 [FromServices] IServiceProvider serviceProvider) =>
         {
+            var validationResult = requestModel.ValidateModel();
+            if (validationResult != null)
+            {
+                return validationResult.CreateValidationErrorResult();
+            }
+
             try
             {
                 var refreshTokenRepository = serviceProvider.GetRequiredService<IRefreshTokenRepository>();
@@ -29,7 +35,7 @@ internal static class RefreshTokenEndpoint
                 var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
 
                 var user = await userManager.CheckRefreshToken(requestModel.AccessToken,
-                        refreshTokenRepository, requestModel.RefreshToken, configOptions.Value.JwtSettings);
+                    refreshTokenRepository, requestModel.RefreshToken, configOptions.Value.JwtSettings);
 
                 var token = await jwtProvider.CreateToken(user.Id);
                 return Results.Ok(new AuthResponseModel
@@ -47,6 +53,14 @@ internal static class RefreshTokenEndpoint
                 {
                     Title = e.Message,
                     Status = e.StatusCode
+                });
+            }
+            catch (SecurityTokenMalformedException e)
+            {
+                return Results.Problem(new ProblemDetails
+                {
+                    Title = e.Message,
+                    Status = StatusCodes.Status400BadRequest
                 });
             }
             catch (Exception e)

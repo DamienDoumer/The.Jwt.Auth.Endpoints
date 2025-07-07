@@ -135,7 +135,8 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         };
 
         var response = await _client.PostAsJsonAsync("/api/auth/refresh", refreshRequest);
-
+        var responseString = await response.Content.ReadAsStringAsync();
+        
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var content = await response.Content.ReadAsStringAsync();
@@ -175,7 +176,8 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         };
 
         var response = await _client.PostAsJsonAsync("/api/auth/refresh", refreshRequest);
-
+        var responseString = await response.Content.ReadAsStringAsync();
+        
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
