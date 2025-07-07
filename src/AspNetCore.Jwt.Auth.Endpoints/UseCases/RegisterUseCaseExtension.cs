@@ -16,7 +16,7 @@ internal static class RegisterUseCaseExtension
         IdentityResult result = null!;
 
         //If it is social auth, we asume the auth provider already verified the user's email.
-        if (!isSocialAuth)
+        if (isSocialAuth)
         {
             newUser.EmailConfirmed = true;
         }

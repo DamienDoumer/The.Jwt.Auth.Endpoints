@@ -32,7 +32,7 @@ internal static class GoogleAuthEndpoint
                             .VerifyIdTokenAsync(googleAuthRequest.Token);
 
                         var picture = firebaseToken.Claims[JwtRegisteredClaimNames.Picture]?.ToString();
-                        var email = firebaseToken.Claims[JwtRegisteredClaimNames.Email]?.ToString();
+                        var email = firebaseToken.Claims[JwtRegisteredClaimNames.Email].ToString();
 
                         var userFactory = serviceProvider.GetRequiredService<IIdentityUserFactory<TUser>>();
                         var configOptions = serviceProvider.GetRequiredService<IOptions<JwtAuthEndpointsConfigOptions>>();
@@ -47,8 +47,8 @@ internal static class GoogleAuthEndpoint
                             return Results.Ok(AuthResponseModel.FromAuthToken(token));
                         }
 
-                        var displayName = firebaseToken.Claims["name"].ToString()!;
-                        var names = displayName.Split(' ');
+                        var displayName = firebaseToken.Claims[JwtRegisteredClaimNames.Name].ToString()!;
+                        var names = displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         var result = await userManager.Register(userFactory,
                                 names.First(), names.Last(), email!, isSocialAuth: true);
 
