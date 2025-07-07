@@ -32,18 +32,12 @@ internal static class GoogleAuthEndpoint
                         var userManager = serviceProvider.GetRequiredService<UserManager<TUser>>();
                         var jwtProvider = serviceProvider.GetRequiredService<IJwtTokenProvider>();
                         var user = await userManager.FindByEmailAsync(email!);
+                        AuthToken? token = null;
 
                         if (user != null)
                         {
-                            var token = await jwtProvider.CreateToken(user.Id);
-                            return Results.Ok(new AuthResponseModel
-                                {
-                                    ExpiresAt = DateTimeOffset.Now.AddMinutes(token.JwtTokenLifeSpanInMinute),
-                                    RefreshTokenExpiryInMinutes = token.RefreshTokenLifeSpanInMinutes,
-                                    RefreshToken = token.RefreshToken,
-                                    Token = token.JwtToken,
-                                    TokenExpiryInMinutes = token.JwtTokenLifeSpanInMinute
-                                });
+                            token = await jwtProvider.CreateToken(user.Id);
+                            return Results.Ok(AuthResponseModel.FromAuthToken(token));
                         }
 
                         var displayName = firebaseToken.Claims["name"].ToString()!;
@@ -51,7 +45,8 @@ internal static class GoogleAuthEndpoint
                         var result = await userManager.Register(userFactory,
                                 names.First(), names.Last(), email!, isSocialAuth: true);
 
-                        return Results.Ok(result);
+                        token = await jwtProvider.CreateToken(result.Id);
+                        return Results.Ok(AuthResponseModel.FromAuthToken(token));
                     }
                     catch (BaseException e)
                     {

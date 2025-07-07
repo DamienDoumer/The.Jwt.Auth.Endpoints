@@ -1,5 +1,6 @@
 ﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
 using AspNetCore.Jwt.Auth.Endpoints.Settings;
+using FirebaseAdmin;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -21,17 +22,22 @@ public static class IdentityBuilderExtensions
     public static IServiceCollection AddJwtAuthEndpoints<TUser>(this IServiceCollection services,
         Action<JwtAuthEndpointsConfigOptions> configureOptions) where TUser : IdentityUser, new()
     {
-            ArgumentNullException.ThrowIfNull(services);
-    ArgumentNullException.ThrowIfNull(configureOptions);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configureOptions);
 
-    services.Configure(configureOptions);
+        services.Configure(configureOptions);
+        services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
+        services.TryAddScoped<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
 
-    services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
+        var config = new JwtAuthEndpointsConfigOptions();
+        configureOptions(config);
+        if (config.GoogleFirebaseAuthOptions != null)
+        {
+            FirebaseApp.Create(config.GoogleFirebaseAuthOptions);
+        }
 
-    services.TryAddScoped<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
-
-    // Configure authentication and JWT bearer
-    services.AddAuthentication(options =>
+        // Configure authentication and JWT bearer
+        services.AddAuthentication(options =>
         {
             var config = new JwtAuthEndpointsConfigOptions();
             configureOptions(config);

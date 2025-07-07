@@ -45,14 +45,7 @@ static internal class RegisterEndpoint
                         registerRequestModel.LastName, registerRequestModel.Email, registerRequestModel.Password);
 
                 var token = await jwtProvider.CreateToken(user.Id);
-                return Results.Ok(new AuthResponseModel
-                {
-                    ExpiresAt = DateTimeOffset.Now.AddMinutes(token.JwtTokenLifeSpanInMinute),
-                    RefreshTokenExpiryInMinutes = token.RefreshTokenLifeSpanInMinutes,
-                    RefreshToken = token.RefreshToken,
-                    Token = token.JwtToken,
-                    TokenExpiryInMinutes = token.JwtTokenLifeSpanInMinute
-                });
+                return Results.Ok(AuthResponseModel.FromAuthToken(token));
             }
             catch (BaseException e)
             {

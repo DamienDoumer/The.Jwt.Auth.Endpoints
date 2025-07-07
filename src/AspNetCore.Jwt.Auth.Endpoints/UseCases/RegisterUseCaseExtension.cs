@@ -25,6 +25,10 @@ internal static class RegisterUseCaseExtension
         {
             result = await userManager.CreateAsync(newUser, password);
         }
+        else
+        {
+            result = await userManager.CreateAsync(newUser);
+        }
 
         if (!result.Succeeded)
         {

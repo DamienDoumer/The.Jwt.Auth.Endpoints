@@ -55,8 +55,8 @@ public class DefaultJwtTokenProvider<TUser> : IJwtTokenProvider where TUser : Id
             issuer: _jwtOptions.JwtSettings.Issuer,
             audience: _jwtOptions.JwtSettings.Audience,
             claims: claims,
-            notBefore: issuedAt.DateTime,
-            expires: expires.DateTime,
+            notBefore: issuedAt.DateTime.ToUniversalTime(),
+            expires: expires.DateTime.ToUniversalTime(),
             signingCredentials: creds
         );
 

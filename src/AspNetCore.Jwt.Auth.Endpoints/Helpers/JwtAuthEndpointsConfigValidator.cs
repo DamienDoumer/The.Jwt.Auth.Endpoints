@@ -1,33 +1,32 @@
-﻿using AspNetCore.Jwt.Auth.Endpoints.Helpers;
-using AspNetCore.Jwt.Auth.Endpoints.Settings;
+﻿using AspNetCore.Jwt.Auth.Endpoints.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
-namespace AspNetCore.Jwt.Auth.Endpoints;
+namespace AspNetCore.Jwt.Auth.Endpoints.Helpers;
 
 public class JwtAuthEndpointsConfigValidator : IValidateOptions<JwtAuthEndpointsConfigOptions>
 {
     public ValidateOptionsResult Validate(string name, JwtAuthEndpointsConfigOptions options)
     {
         if (options.JwtSettings == null ||
-            (
+            
                 string.IsNullOrWhiteSpace(options.JwtSettings.Audience) ||
                 string.IsNullOrWhiteSpace(options.JwtSettings.Issuer) ||
                 string.IsNullOrWhiteSpace(options.JwtSettings.Secret) ||
                 options.JwtSettings.RefreshTokenLifeSpanInMinutes == 0 ||
                 options.JwtSettings.TokenLifeSpanInMinutes == 0
-            ))
+            )
         {
             return ValidateOptionsResult.Fail("Please configure properly your \"JwtSettings\" " +
                     "Make sure every property has a value other than the default value.");
         }
 
         if (!(
-        (
+        
             options.AuthenticationScheme.DefaultAuthenticateScheme == JwtBearerDefaults.AuthenticationScheme &&
             options.AuthenticationScheme.DefaultChallengeScheme == JwtBearerDefaults.AuthenticationScheme &&
             options.AuthenticationScheme.DefaultScheme == JwtBearerDefaults.AuthenticationScheme
-        ) &&
+         &&
         options.JwtAuthSchemeOptions != null))
         {
             return ValidateOptionsResult.Fail("Please check your JwtAuthEndpointsConfigOptions's configurations and make sure that " +
