@@ -40,14 +40,14 @@ static internal class LoginEndpoint
                     });
 
                 var user = await userManager.FindByEmailAsync(loginRequestModel.Email);
-                if (!user!.EmailConfirmed)
+                if (user is { EmailConfirmed: false })
                     return Results.Problem(new ProblemDetails
                     {
-                        Title = "Please confirm your email.",
+                        Title = "Please confirm your email before logging in.",
                         Status = StatusCodes.Status401Unauthorized
                     });
 
-                var token = await jwtProvider.CreateToken(user.Id);
+                var token = await jwtProvider.CreateToken(user!.Id);
                 return Results.Ok(new AuthResponseModel
                 {
                     ExpiresAt = DateTimeOffset.Now.AddMinutes(token.JwtTokenLifeSpanInMinute),

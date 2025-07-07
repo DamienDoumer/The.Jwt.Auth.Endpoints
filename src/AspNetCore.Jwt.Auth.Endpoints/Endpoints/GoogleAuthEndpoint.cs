@@ -29,7 +29,6 @@ internal static class GoogleAuthEndpoint
                         return validationResult.CreateValidationErrorResult();
                     }
 
-                    
                     try
                     {
                         var firebaseToken = await FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance

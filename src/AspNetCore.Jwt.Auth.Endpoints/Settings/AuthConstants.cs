@@ -7,6 +7,7 @@ internal class AuthConstants
     public const string LoginEndpoint = $"{AuthEnpointGroup}/login";
     public const string GoogleEndpoint = $"{AuthEnpointGroup}/social/google";
     public const string RefreshEndpoint = $"{AuthEnpointGroup}/refresh";
+    public const string EmailConfirmationEndpoint = $"{AuthEnpointGroup}/confirmEmail";
     public const string ResendConfirmationEmailEndpoint = $"{AuthEnpointGroup}/resendConfirmationEmail";
     public const string ForgotPasswordpoint = $"{AuthEnpointGroup}/forgotPassword";
     public const string ResetPasswordpoint = $"{AuthEnpointGroup}/resetPassword";

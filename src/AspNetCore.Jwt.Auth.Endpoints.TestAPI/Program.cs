@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AspNetCore.Jwt.Auth.Endpoints.Helpers;
+using AspNetCore.Jwt.Auth.Endpoints.TestAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 //***NOTE***: These are Required, for the JWT AUTH TO WORK
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IIdentityUserFactory<ApplicationUser>, SimpleUserFactory>();
+builder.Services.AddScoped<IEmailSender<ApplicationUser>, EmailSender>();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>

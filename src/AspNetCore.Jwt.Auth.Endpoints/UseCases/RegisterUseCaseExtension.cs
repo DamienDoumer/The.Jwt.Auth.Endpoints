@@ -15,11 +15,8 @@ internal static class RegisterUseCaseExtension
         var newUser = identityUserFactory.CreateUser(firstName, secondName, email, password);
         IdentityResult result = null!;
 
-        //If it is social auth, we asume the auth provider already verified the user's email.
-        if (isSocialAuth)
-        {
-            newUser.EmailConfirmed = true;
-        }
+        //If it is social auth, we assume the auth provider already verified the user's email.
+        newUser.EmailConfirmed = isSocialAuth;
 
         if (!string.IsNullOrWhiteSpace(password))
         {

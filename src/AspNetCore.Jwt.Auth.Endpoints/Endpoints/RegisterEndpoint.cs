@@ -20,7 +20,9 @@ static internal class RegisterEndpoint
                 [FromBody] RegisterRequestModel registerRequestModel,
                 [FromServices] UserManager<TUser> userManager,
                 [FromServices] IJwtTokenProvider jwtProvider,
-                [FromServices] IIdentityUserFactory<TUser> userFactory) =>
+                [FromServices] IIdentityUserFactory<TUser> userFactory,
+                [FromServices] IEmailSender<TUser> emailSender,
+                [FromServices] IHttpContextAccessor httpContextAccessor) =>
         {
             var validationResult = registerRequestModel.ValidateModel();
             if (validationResult != null)
@@ -30,7 +32,6 @@ static internal class RegisterEndpoint
 
             try
             {
-
                 var user = await userManager.FindByEmailAsync(registerRequestModel.Email);
                 if (user != null)
                     return Results.Problem(new ProblemDetails
@@ -42,8 +43,23 @@ static internal class RegisterEndpoint
                 user = await userManager.Register(userFactory, registerRequestModel.FirstName,
                         registerRequestModel.LastName, registerRequestModel.Email, registerRequestModel.Password);
 
+                var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                
+                var httpContext = httpContextAccessor.HttpContext!;
+                var confirmationLink = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}" +
+                                     $"{AuthConstants.EmailConfirmationEndpoint}?userId={user.Id}&token={Uri.EscapeDataString(emailConfirmationToken)}";
+
+                await emailSender.SendConfirmationLinkAsync(user, user.Email!,
+                    confirmationLink);
+                
                 var token = await jwtProvider.CreateToken(user.Id);
-                return Results.Ok(AuthResponseModel.FromAuthToken(token));
+                
+                return Results.Ok(new RegisterResponseModel
+                {
+                    Message = "Registration successful. Please check your email for confirmation instructions.",
+                    RequiresEmailConfirmation = true,
+                    AuthResponse = AuthResponseModel.FromAuthToken(token)
+                });
             }
             catch (BaseException e)
             {
@@ -64,7 +80,7 @@ static internal class RegisterEndpoint
         })
             .WithName(Name)
             .AllowAnonymous()
-            .Produces<AuthResponseModel>(StatusCodes.Status200OK)
+            .Produces<RegisterResponseModel>(StatusCodes.Status200OK)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .WithTags(AuthEndpointExtentions.Tag);
 

@@ -41,12 +41,12 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var content = await response.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponseModel>(content);
+        var authResponse = JsonConvert.DeserializeObject<RegisterResponseModel>(content);
         
         authResponse.Should().NotBeNull();
-        authResponse!.Token.Should().NotBeNullOrEmpty();
-        authResponse.RefreshToken.Should().NotBeNullOrEmpty();
-        authResponse.TokenExpiryInMinutes.Should().BeGreaterThan(0);
+        authResponse!.AuthResponse!.Token.Should().NotBeNullOrEmpty();
+        authResponse.AuthResponse!.RefreshToken.Should().NotBeNullOrEmpty();
+        authResponse.AuthResponse!.TokenExpiryInMinutes.Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -130,8 +130,8 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         var refreshRequest = new RefreshTokenRequestModel
         {
-            AccessToken = authResponse.Token,
-            RefreshToken = authResponse.RefreshToken
+            AccessToken = authResponse.AuthResponse!.Token,
+            RefreshToken = authResponse.AuthResponse!.RefreshToken
         };
 
         var response = await _client.PostAsJsonAsync("/api/auth/refresh", refreshRequest);
@@ -145,7 +145,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         newAuthResponse.Should().NotBeNull();
         newAuthResponse!.Token.Should().NotBeNullOrEmpty();
         newAuthResponse.RefreshToken.Should().NotBeNullOrEmpty();
-        newAuthResponse.Token.Should().NotBe(authResponse.Token);
+        newAuthResponse.Token.Should().NotBe(authResponse.AuthResponse!.Token);
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         var refreshRequest = new RefreshTokenRequestModel
         {
-            AccessToken = authResponse.Token,
+            AccessToken = authResponse.AuthResponse!.Token,
             RefreshToken = "invalid-refresh-token"
         };
 
@@ -172,7 +172,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         var refreshRequest = new RefreshTokenRequestModel
         {
             AccessToken = "invalid-access-token",
-            RefreshToken = authResponse.RefreshToken
+            RefreshToken = authResponse.AuthResponse!.RefreshToken
         };
 
         var response = await _client.PostAsJsonAsync("/api/auth/refresh", refreshRequest);
@@ -212,7 +212,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    private async Task<AuthResponseModel> RegisterAndLoginUser(string email, string password)
+    private async Task<RegisterResponseModel> RegisterAndLoginUser(string email, string password)
     {
         var registerRequest = new RegisterRequestModel
         {
@@ -224,7 +224,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         var response = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
         var content = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<AuthResponseModel>(content)!;
+        return JsonConvert.DeserializeObject<RegisterResponseModel>(content)!;
     }
 
     private async Task SeedUserAsync(string email, string password, bool emailConfirmed = true)
