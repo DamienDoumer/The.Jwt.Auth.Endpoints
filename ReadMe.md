@@ -1,4 +1,4 @@
-# AspNetCore.Jwt.Auth.Endpoints
+# Doumer.AspNetCore.Jwt.Auth.Endpoints
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-blue.svg)](https://docs.microsoft.com/aspnet/core)
@@ -6,7 +6,7 @@
 
 A complete, production-ready JWT authentication library for ASP.NET Core applications. This library provides pre-built authentication endpoints using minimal APIs, following modern ASP.NET Core patterns and security best practices.
 
-## Why AspNetCore.Jwt.Auth.Endpoints?
+## Why Doumer.AspNetCore.Jwt.Auth.Endpoints?
 
 Microsoft released [Identity endpoints](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-api-authorization?view=aspnetcore-9.0) as part of .NET 8, but with limitations:
 Uses proprietary tokens instead of standard JWT, and has limited customization.
