@@ -45,7 +45,7 @@ Once configured, the library provides the following endpoints:
 ### 1. Installation
 
 ```bash
-dotnet add package AspNetCore.Jwt.Auth.Endpoints
+dotnet add package The.Jwt.Auth.Endpoints
 ```
 
 ### 2. Basic Setup
@@ -66,7 +66,7 @@ public class ApplicationUser : IdentityUser
 
 #### Configure Services in Program.cs
 ```csharp
-using AspNetCore.Jwt.Auth.Endpoints.Extensions;
+using The.Jwt.Auth.Endpoints.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -421,4 +421,4 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ## Support
 
-For issues, questions, or feature requests, please create an issue in the [GitHub repository](https://github.com/your-username/AspNetCore.Jwt.Auth.Endpoints).
+For issues, questions, or feature requests, please create an issue in the [GitHub repository](https://github.com/DamienDoumer/The.Jwt.Auth.Endpoints).

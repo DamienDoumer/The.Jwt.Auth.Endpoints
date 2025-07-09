@@ -13,7 +13,7 @@
           All that in a few steps.
       </Description>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <RepositoryUrl>https://github.com/DamienDoumer/AspNetCore.Jwt.Auth.Endpoints</RepositoryUrl>
+      <RepositoryUrl>https://github.com/DamienDoumer/The.Jwt.Auth.Endpoints</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
