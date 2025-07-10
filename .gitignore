@@ -368,3 +368,6 @@ FodyWeavers.xsd
 /src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db-wal
 /src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db-shm
 /src/AspNetCore.Jwt.Auth.Endpoints.TestAPI/app.db-wal
+/src/The.Jwt.Auth.Endpoints.TestApi/app.db
+/src/The.Jwt.Auth.Endpoints.TestApi/app.db-shm
+/src/The.Jwt.Auth.Endpoints.TestApi/app.db-wal
