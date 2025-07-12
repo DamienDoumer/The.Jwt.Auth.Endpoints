@@ -164,92 +164,58 @@ public class SimpleUserFactory : IIdentityUserFactory<ApplicationUser>
 ```
 
 #### Refresh Token Repository
+Here's a sample implementation, but you could do what ever you want, as long as it stores the token in a database.
 ```csharp
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _applicationDbContext;
 
-    public RefreshTokenRepository(ApplicationDbContext context)
+    public RefreshTokenRepository(ApplicationDbContext applicationDbContext)
     {
-        _context = context;
+        _applicationDbContext = applicationDbContext;
     }
 
-    public async Task<string> GenerateRefreshTokenAsync(string userId)
+    public async Task<bool> AddOrUpdateRefreshToken(string userId, string refreshToken, DateTime expiryTime)
     {
-        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+            return false;
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = expiryTime;
         
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
-            await _context.SaveChangesAsync();
-        }
+        await _applicationDbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteRefreshToken(string userId, string refreshToken)
+    {
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && u.RefreshToken == refreshToken);
+        if (user == null)
+            return false;
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = DateTime.MinValue;
         
-        return refreshToken;
+        await _applicationDbContext.SaveChangesAsync();
+        return true;
     }
 
-    public async Task<bool> ValidateRefreshTokenAsync(string userId, string refreshToken)
+    public async Task<(string refreshToken, DateTime expiryTime)> GetRefreshToken(string userId)
     {
-        var user = await _context.Users.FindAsync(userId);
-        return user != null && 
-               user.RefreshToken == refreshToken && 
-               user.RefreshTokenExpiryTime > DateTime.UtcNow;
-    }
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null || string.IsNullOrEmpty(user.RefreshToken))
+            return (null!, DateTime.MinValue);
 
-    public async Task RevokeRefreshTokenAsync(string userId)
-    {
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.RefreshToken = string.Empty;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(-1);
-            await _context.SaveChangesAsync();
-        }
+        return (user.RefreshToken, user.RefreshTokenExpiryTime);
     }
-}
 ```
 
 #### Email Sender
 ```csharp
 public class EmailSender : IEmailSender<ApplicationUser>
 {
-    private readonly ILogger<EmailSender> _logger;
-    private readonly IConfiguration _configuration;
-
-    public EmailSender(ILogger<EmailSender> logger, IConfiguration configuration)
-    {
-        _logger = logger;
-        _configuration = configuration;
-    }
-
-    public async Task SendConfirmationLinkAsync(ApplicationUser user, string email, string confirmationLink)
-    {
-        _logger.LogInformation("Sending confirmation email to {Email}", email);
-        
-        // TODO: Implement your email sending logic here
-        // Example: using SendGrid, SMTP, or other email service
-        
-        await Task.CompletedTask;
-    }
-
-    public async Task SendPasswordResetLinkAsync(ApplicationUser user, string email, string resetLink)
-    {
-        _logger.LogInformation("Sending password reset email to {Email}", email);
-        
-        // TODO: Implement your password reset email logic here
-        
-        await Task.CompletedTask;
-    }
-
-    public async Task SendPasswordResetCodeAsync(ApplicationUser user, string email, string resetCode)
-    {
-        _logger.LogInformation("Sending password reset code to {Email}", email);
-        
-        // TODO: Implement your password reset code logic here
-        
-        await Task.CompletedTask;
-    }
+    //Your implementation...
 }
 ```
 

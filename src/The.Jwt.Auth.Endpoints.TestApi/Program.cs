@@ -65,10 +65,10 @@ builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
     };
     
     // NOTE: Google Firebase Auth is optional - leave null if not using
-    options.GoogleFirebaseAuthOptions = new AppOptions()
-    {
-        Credential = GoogleCredential.FromFile("FirebaseServiceAccountFile.json")
-    };
+    //options.GoogleFirebaseAuthOptions = new AppOptions()
+    //{
+    //    Credential = GoogleCredential.FromFile("FirebaseServiceAccountFile.json")
+    //};
 });
 
 var app = builder.Build();
