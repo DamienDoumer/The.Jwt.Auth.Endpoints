@@ -12,6 +12,7 @@
           Add JWT auth + social auth and with endpoints ready to run, no configuration needed.
           All that in a few steps.
       </Description>
+	    <PackageReadmeFile>README.md</PackageReadmeFile>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <RepositoryUrl>https://github.com/DamienDoumer/The.Jwt.Auth.Endpoints</RepositoryUrl>
   </PropertyGroup>
@@ -22,4 +23,8 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Pull from parent folder, put at package root -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
