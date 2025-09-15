@@ -66,7 +66,7 @@ public class AuthEndpointsIntegrationTests : IClassFixture<TestWebApplicationFac
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
-
+     
     [Fact]
     public async Task LoginEndpoint_WithValidCredentials_ShouldReturnSuccessAndToken()
     {

@@ -10,7 +10,7 @@ internal class GoogleAuthRequestModel
     /// over the rest to the server.
     /// </summary>
     [Required]
-    [StringLength(1000)]
+    [StringLength(5000)]
     public string Token { get; set; }
 
     public GoogleAuthRequestModel()
