@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using The.Jwt.Auth.Endpoints.Endpoints.Requests;
 using The.Jwt.Auth.Endpoints.Endpoints.Responses;
 using The.Jwt.Auth.Endpoints.Extensions;
@@ -17,11 +18,15 @@ static internal class ResetPasswordEndpoint
     {
         app.MapPost(AuthConstants.ResetPasswordEndpoint, async (
             [FromBody] ResetPasswordRequestModel request,
-            [FromServices] UserManager<TUser> userManager) =>
+            [FromServices] UserManager<TUser> userManager,
+            [FromServices] ILogger<TUser> logger) =>
         {
+            logger.LogInformation("Password reset attempt for email: {Email}", request.Email);
+
             var validationResult = request.ValidateModel();
             if (validationResult != null)
             {
+                logger.LogWarning("Reset password validation failed for email: {Email}", request.Email);
                 return validationResult.CreateValidationErrorResult();
             }
 
@@ -30,6 +35,8 @@ static internal class ResetPasswordEndpoint
                 var user = await userManager.FindByEmailAsync(request.Email);
                 if (user == null || !await userManager.IsEmailConfirmedAsync(user))
                 {
+                    logger.LogWarning("Invalid password reset request for email: {Email}. User not found or email not confirmed.",
+                        request.Email);
                     return Results.Problem(new ProblemDetails
                     {
                         Title = "Invalid password reset request.",
@@ -37,11 +44,15 @@ static internal class ResetPasswordEndpoint
                     });
                 }
 
+                logger.LogDebug("Processing password reset for user: {UserId}, Email: {Email}",
+                    user.Id, request.Email);
                 var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
                 var result = await userManager.ResetPasswordAsync(user, code, request.NewPassword);
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    logger.LogWarning("Password reset failed for user: {UserId}, Email: {Email}. Errors: {Errors}",
+                        user.Id, request.Email, errors);
                     return Results.Problem(new ProblemDetails
                     {
                         Title = $"Password reset failed: {errors}",
@@ -49,6 +60,8 @@ static internal class ResetPasswordEndpoint
                     });
                 }
 
+                logger.LogInformation("Password reset successfully for user: {UserId}, Email: {Email}",
+                    user.Id, request.Email);
                 return Results.Ok(new GenericResponseModel
                 {
                     Success = true,
@@ -57,6 +70,7 @@ static internal class ResetPasswordEndpoint
             }
             catch (FormatException e)
             {
+                logger.LogWarning(e, "Invalid password reset token format for email: {Email}", request.Email);
                 return Results.Problem(new ProblemDetails
                 {
                     Title = "The token is not valid",
@@ -65,6 +79,8 @@ static internal class ResetPasswordEndpoint
             }
             catch (BaseException e)
             {
+                logger.LogWarning(e, "Password reset failed for email: {Email}. Error: {Message}",
+                    request.Email, e.Message);
                 return Results.Problem(new ProblemDetails
                 {
                     Title = e.Message,
@@ -73,6 +89,7 @@ static internal class ResetPasswordEndpoint
             }
             catch (Exception e)
             {
+                logger.LogError(e, "Unexpected error during password reset for email: {Email}", request.Email);
                 return Results.Problem(new ProblemDetails
                 {
                     Title = e.Message,

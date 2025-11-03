@@ -64,10 +64,17 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncL
 
     public Task DisposeAsync()
     {
-        // Clean up test database file
-        if (File.Exists(_connectionString.Replace("Data Source=", "")))
+        try
         {
-            File.Delete(_connectionString.Replace("Data Source=", ""));
+            // Clean up test database file
+            if (File.Exists(_connectionString.Replace("Data Source=", "")))
+            {
+                File.Delete(_connectionString.Replace("Data Source=", ""));
+            }
+        }
+        catch (Exception e)
+        {
+            ;// Log exception if needed
         }
         
         return Task.CompletedTask;

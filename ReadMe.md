@@ -100,6 +100,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IIdentityUserFactory<ApplicationUser>, SimpleUserFactory>();
 builder.Services.AddScoped<IEmailSender<ApplicationUser>, EmailSender>();
+builder.Services.AddScoped<IWelcomeActionService, YourWelcomeActionService>();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>
@@ -218,6 +219,44 @@ public class EmailSender : IEmailSender<ApplicationUser>
     //Your implementation...
 }
 ```
+
+#### Welcome Action Service
+The `IWelcomeActionService` is **required** and will be called automatically after a user account is successfully created (both during registration and Google social authentication).
+
+```csharp
+public class YourWelcomeActionService : IWelcomeActionService
+{
+    private readonly ILogger<YourWelcomeActionService> _logger;
+    private readonly IEmailService _emailService; // Your email service
+
+    public YourWelcomeActionService(
+        ILogger<YourWelcomeActionService> logger,
+        IEmailService emailService)
+    {
+        _logger = logger;
+        _emailService = emailService;
+    }
+
+    public async Task PerformWelcomeActionsAsync(string userId, string userEmail, string username)
+    {
+        _logger.LogInformation("Performing welcome actions for user {UserId}", userId);
+
+        // Send welcome email
+        await _emailService.SendWelcomeEmailAsync(userEmail, username);
+
+        // Create default user data, initialize preferences, etc.
+        // Add any other welcome actions your application requires
+
+        _logger.LogInformation("Welcome actions completed for user {UserId}", userId);
+    }
+}
+```
+
+**Note:** This service is called after:
+- New user registration via `/api/auth/register`
+- New user creation via Google authentication at `/api/auth/social/google`
+
+It is **not** called when existing users log in.
 
 ### Example Usage
 

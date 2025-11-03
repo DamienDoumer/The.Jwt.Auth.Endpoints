@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using The.Jwt.Auth.Endpoints.Endpoints.Responses;
 using The.Jwt.Auth.Endpoints.Extensions;
 using The.Jwt.Auth.Endpoints.Helpers.Exceptions;
@@ -15,13 +16,17 @@ internal static class EmailConfirmationEndpoint
     {
         app.MapGet(AuthConstants.EmailConfirmationEndpoint,
                 async ([FromQuery] string userId, [FromQuery] string token,
-                       [FromServices] UserManager<TUser> userManager) =>
+                       [FromServices] UserManager<TUser> userManager,
+                       [FromServices] ILogger<TUser> logger) =>
                 {
+                    logger.LogInformation("Email confirmation attempt for userId: {UserId}", userId);
+
                     try
                     {
                         var user = await userManager.FindByIdAsync(userId);
                         if (user == null)
                         {
+                            logger.LogWarning("Email confirmation failed. User not found: {UserId}", userId);
                             return Results.Problem(new ProblemDetails
                             {
                                 Title = "User not found.",
@@ -31,6 +36,8 @@ internal static class EmailConfirmationEndpoint
 
                         if (await userManager.IsEmailConfirmedAsync(user))
                         {
+                            logger.LogInformation("Email already confirmed for user: {UserId}, Email: {Email}",
+                                userId, user.Email);
                             return Results.Ok(new EmailConfirmationResponseModel
                             {
                                 Success = true,
@@ -38,10 +45,13 @@ internal static class EmailConfirmationEndpoint
                             });
                         }
 
+                        logger.LogDebug("Processing email confirmation token for user: {UserId}", userId);
                         var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
                         var result = await userManager.ConfirmEmailAsync(user, decodedToken);
                         if (result.Succeeded)
                         {
+                            logger.LogInformation("Email confirmed successfully for user: {UserId}, Email: {Email}",
+                                userId, user.Email);
                             return Results.Ok(new EmailConfirmationResponseModel
                             {
                                 Success = true,
@@ -50,6 +60,8 @@ internal static class EmailConfirmationEndpoint
                         }
 
                         var errors = result.Errors.Select(e => e.Description).ToList();
+                        logger.LogWarning("Email confirmation failed for user: {UserId}. Errors: {Errors}",
+                            userId, string.Join(", ", errors));
                         return Results.Problem(new ProblemDetails
                         {
                             Title = string.Join(", ", errors),
@@ -58,6 +70,7 @@ internal static class EmailConfirmationEndpoint
                     }
                     catch (FormatException e)
                     {
+                        logger.LogWarning(e, "Invalid email confirmation token format for user: {UserId}", userId);
                         return Results.Problem(new ProblemDetails
                         {
                             Title = "The token is invalid.",
@@ -66,6 +79,8 @@ internal static class EmailConfirmationEndpoint
                     }
                     catch (BaseException e)
                     {
+                        logger.LogWarning(e, "Email confirmation failed for user: {UserId}. Error: {Message}",
+                            userId, e.Message);
                         return Results.Problem(new ProblemDetails
                         {
                             Title = e.Message,
@@ -74,6 +89,7 @@ internal static class EmailConfirmationEndpoint
                     }
                     catch (Exception e)
                     {
+                        logger.LogError(e, "Unexpected error during email confirmation for user: {UserId}", userId);
                         return Results.Problem(new ProblemDetails
                         {
                             Title = e.Message,

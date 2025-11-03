@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using The.Jwt.Auth.Endpoints.Endpoints.Requests;
@@ -22,21 +23,29 @@ internal static class RefreshTokenEndpoint
                 [FromServices] IRefreshTokenRepository refreshTokenRepository,
                 [FromServices] IOptions<JwtAuthEndpointsConfigOptions> configOptions,
                 [FromServices] UserManager<TUser> userManager,
-                [FromServices] IJwtTokenProvider jwtProvider) =>
+                [FromServices] IJwtTokenProvider jwtProvider,
+                [FromServices] ILogger<TUser> logger) =>
         {
+            logger.LogInformation("Token refresh attempt initiated");
+
             var validationResult = requestModel.ValidateModel();
             if (validationResult != null)
             {
+                logger.LogWarning("Token refresh validation failed");
                 return validationResult.CreateValidationErrorResult();
             }
 
             try
             {
-
+                logger.LogDebug("Validating refresh token");
                 var user = await userManager.CheckRefreshToken(requestModel.AccessToken,
                     refreshTokenRepository, requestModel.RefreshToken, configOptions.Value.JwtSettings);
 
+                logger.LogInformation("Refresh token validated successfully for user: {UserId}", user.Id);
+
                 var token = await jwtProvider.CreateToken(user.Id);
+                logger.LogInformation("New access token generated for user: {UserId}", user.Id);
+
                 return Results.Ok(new AuthResponseModel
                 {
                     ExpiresAt = DateTimeOffset.Now.AddMinutes(token.JwtTokenLifeSpanInMinute),
@@ -48,6 +57,7 @@ internal static class RefreshTokenEndpoint
             }
             catch (BaseException e)
             {
+                logger.LogWarning(e, "Token refresh failed. Error: {Message}", e.Message);
                 return Results.Problem(new ProblemDetails
                 {
                     Title = e.Message,
@@ -56,6 +66,7 @@ internal static class RefreshTokenEndpoint
             }
             catch (SecurityTokenMalformedException e)
             {
+                logger.LogWarning(e, "Malformed security token provided for refresh");
                 return Results.Problem(new ProblemDetails
                 {
                     Title = e.Message,
@@ -64,6 +75,7 @@ internal static class RefreshTokenEndpoint
             }
             catch (Exception e)
             {
+                logger.LogError(e, "Unexpected error during token refresh");
                 return Results.Problem(new ProblemDetails
                 {
                     Title = e.Message,

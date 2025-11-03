@@ -41,6 +41,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IIdentityUserFactory<ApplicationUser>, SimpleUserFactory>();
 builder.Services.AddScoped<IEmailSender<ApplicationUser>, EmailSender>();
+builder.Services.AddScoped<IWelcomeActionService, DummyWelcomeActionService>();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthEndpoints<ApplicationUser>(options =>

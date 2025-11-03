@@ -13,6 +13,9 @@ public static class IdentityBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        // Ensure IWelcomeActionService is registered
+        _ = builder.ServiceProvider.GetRequiredService<IWelcomeActionService>();
+
         RouteGroupBuilder group = builder.MapGroup("");
         group.MapAuthenticationEndpoints<TUser>();
 
