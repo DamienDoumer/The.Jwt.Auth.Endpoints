@@ -13,9 +13,6 @@ public static class IdentityBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        // Ensure IWelcomeActionService is registered
-        _ = builder.ServiceProvider.GetRequiredService<IWelcomeActionService>();
-
         RouteGroupBuilder group = builder.MapGroup("");
         group.MapAuthenticationEndpoints<TUser>();
 
@@ -31,6 +28,7 @@ public static class IdentityBuilderExtensions
         services.Configure(configureOptions);
         services.AddSingleton<IValidateOptions<JwtAuthEndpointsConfigOptions>, JwtAuthEndpointsConfigValidator>();
         services.TryAddScoped<IJwtTokenProvider, DefaultJwtTokenProvider<TUser>>();
+        services.TryAddScoped<IWelcomeActionService, DefaultWelcomeActionService>();
 
         var config = new JwtAuthEndpointsConfigOptions();
         configureOptions(config);
